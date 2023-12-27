@@ -18,8 +18,6 @@ const bingAI = new BingAI({
 })
 
 
-
-
 const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
 
 const queue = new PQueue({ concurrency: 1 });
@@ -80,7 +78,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
                     plugins: []
                 })));
 
-
+                await flowDynamic(formatText(response.response) ?? 'Error')
                 const isImageResponse = await bingAI.detectImageInResponse(response)
 
                 if (isImageResponse?.srcs?.length > 0) {
@@ -105,7 +103,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
                     finishedAnswer: true
                 })
 
-                await flowDynamic(formatText(response.response) ?? 'Error')
             } catch (error) {
                 state.update({ finishedAnswer: true });
                 await flowDynamic('Error');
@@ -142,6 +139,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
                     plugins: []
                 })));
 
+                await flowDynamic(formatText(response.response) ?? 'Error');
                 const isImageResponse = await bingAI.detectImageInResponse(response)
 
                 if (isImageResponse?.srcs?.length > 0) {
@@ -167,11 +165,9 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
                     finishedAnswer: true
                 });
 
-                await flowDynamic(formatText(response.response) ?? 'Error');
-
-
+             
                 if (state.getMyState()?.conversationNumber % 5 === 0 && state.getMyState()?.conversationNumber !== 0) {
-                    await flowDynamic('Restaurar Mensaje');
+                    // await flowDynamic('Restaurar Mensaje');
                 }
             } catch (error) {
                 console.error(error);
