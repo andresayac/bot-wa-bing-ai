@@ -83,17 +83,19 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
 
                 if (isImageResponse?.srcs?.length > 0) {
                     const srcs = isImageResponse.srcs.map(src => src.replace('w=270&h=270', 'w=1024&h=1024'))
-
+                    let urls = ''
                     srcs.forEach(async (src, index) => {
                         // if image not have w=1024&h=1024 continue
                         if (!src.includes('w=1024&h=1024')) return
                         await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                             image: {
                                 url: src
-                            },
-                            caption: isImageResponse.urls[index]
+                            }
                         })
+                        urls += isImageResponse.urls[index] + '\n'
                     })
+
+                    await flowDynamic(urls)
 
                 }
 
@@ -144,17 +146,19 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
 
                 if (isImageResponse?.srcs?.length > 0) {
                     const srcs = isImageResponse.srcs.map(src => src.replace('w=270&h=270', 'w=1024&h=1024'))
+                    let urls = ''
                     srcs.forEach(async (src, index) => {
+                        // if image not have w=1024&h=1024 continue
                         if (!src.includes('w=1024&h=1024')) return
                         await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                             image: {
                                 url: src
-                            },
-                            caption: isImageResponse.urls[index]
+                            }
                         })
+                        urls += isImageResponse.urls[index] + '\n'
                     })
 
-
+                    await flowDynamic(urls)
 
                 }
 
