@@ -1,11 +1,11 @@
 import pkg from '@bot-whatsapp/bot'
 import BaileysProvider from '@bot-whatsapp/provider/baileys'
 import JsonFileAdapter from '@bot-whatsapp/database/json'
-import { oraPromise } from 'ora'
 import dotenv from 'dotenv-safe'
+import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
 import { processAudio } from './services/Huggingface.js';
-import { isAudio, simulateTyping, simulateEndPause, formatText } from './utils/index.js'
+import { isAudio, isImage, simulateTyping, simulateEndPause, formatText, timeout } from './utils/index.js'
 import { downloadMediaMessage } from '@whiskeysockets/baileys'
 import BingAI from './services/BingAI.js';
 import ChatGPT from './services/ChatGPT.js';
@@ -20,9 +20,12 @@ const bingAI = new BingAI({
 
 const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
 
+const maxTimeQueue = 600000;
 const queue = new PQueue({ concurrency: 1 });
 
-const flowBotImage = addKeyword(EVENTS.MEDIA).addAnswer('Solo permito texto')
+const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { fallBack, flowDynamic, gotoFlow, provider }) => {
+    gotoFlow(flowBotWelcome)
+})
 
 const flowBotDoc = addKeyword(EVENTS.DOCUMENT).addAnswer('solo permito texto')
 
@@ -32,8 +35,12 @@ const flowBotAudio = addKeyword(EVENTS.VOICE_NOTE).addAction(async (ctx, { fallB
 
 const flowBotLocation = addKeyword(EVENTS.LOCATION).addAnswer('No permito leer ubicaciones')
 
-const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudarte', { capture: true },
-    async (ctx, { fallBack, flowDynamic, endFlow, gotoFlow, provider, state }) => {
+const flowBotWelcome = addKeyword(EVENTS.WELCOME)
+    .addAction(async (ctx, { fallBack, flowDynamic, endFlow, gotoFlow, provider, state }) => {
+        console.log(JSON.stringify(ctx, null, 2));
+        // simulate typing
+        await simulateTyping(ctx, provider)
+
         if (isAudio(ctx)) {
             // process audio
             await flowDynamic('Escuchando Audio');
@@ -48,8 +55,16 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
             }
         }
 
-        // simulate typing
-        await simulateTyping(ctx, provider)
+        let imageBase64 = null
+        if (isImage(ctx)) {
+
+            await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍🖼️⏳💭' }, { quoted: ctx })
+            await simulateTyping(ctx, provider)
+            const buffer = await downloadMediaMessage(ctx, 'buffer')
+            // buffer to base64
+            imageBase64 = buffer.toString('base64')
+            ctx.body = ctx.message?.imageMessage?.caption ?? ''
+        }
 
         // restart conversation
         if (ctx.body.toLowerCase().trim().includes('reiniciar') || ctx.body.toLowerCase().trim().includes('restart')) {
@@ -72,11 +87,19 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
             let prompt = ctx.body.trim();
 
             try {
-                const response = await queue.add(() => oraPromise(bingAI.sendMessage(prompt, {
-                    jailbreakConversationId: true,
-                    toneStyle: 'precise', // or creative, precise, fast default: balanced 
-                    plugins: []
-                })));
+                const response = await queue.add(() => Promise.race([
+                    oraPromise(bingAI.sendMessage(prompt, {
+                        jailbreakConversationId: true,
+                        toneStyle: 'precise', // or creative, precise, fast default: balanced 
+                        plugins: [],
+                        context: null,
+                        ...imageBase64 && { imageBase64 },
+                    }),
+                        {
+                            text: 'Esperando respuesta de: ' + prompt
+                        }),
+                    timeout(maxTimeQueue)
+                ]));
 
                 await flowDynamic(formatText(response.response) ?? 'Error')
                 const isImageResponse = await bingAI.detectImageInResponse(response)
@@ -117,7 +140,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
             return
         }
 
-        new Promise((res) => setTimeout(res, 5000))
+        // new Promise((res) => setTimeout(res, 5000))
 
         if (state.getMyState()?.finishedAnswer === false) {
             flowDynamic('Un solo mensaje a la vez')
@@ -127,19 +150,27 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
 
         if (state.getMyState()?.conversationBot?.conversationId) {
 
-            let conversation = ctx.body.trim()
+            let prompt = ctx.body.trim()
 
             state.update({
                 finishedAnswer: false
             })
 
             try {
-                let response = await queue.add(() => oraPromise(bingAI.sendMessage(conversation, {
-                    jailbreakConversationId: state.getMyState()?.conversationBot.jailbreakConversationId,
-                    parentMessageId: state.getMyState()?.conversationBot.messageId,
-                    toneStyle: 'precise',
-                    plugins: []
-                })));
+                const response = await queue.add(() => Promise.race([
+                    oraPromise(bingAI.sendMessage(prompt, {
+                        jailbreakConversationId: state.getMyState()?.conversationBot.jailbreakConversationId,
+                        parentMessageId: state.getMyState()?.conversationBot.messageId,
+                        toneStyle: 'precise',
+                        plugins: [],
+                        ...imageBase64 && { imageBase64 },
+                    }),
+                        {
+                            text: 'Esperando respuesta de: ' + prompt
+                        }
+                    ),
+                    timeout(maxTimeQueue)
+                ]));
 
                 await flowDynamic(formatText(response.response) ?? 'Error');
                 const isImageResponse = await bingAI.detectImageInResponse(response)
@@ -169,7 +200,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
                     finishedAnswer: true
                 });
 
-             
+
                 if (state.getMyState()?.conversationNumber % 5 === 0 && state.getMyState()?.conversationNumber !== 0) {
                     // await flowDynamic('Restaurar Mensaje');
                 }
@@ -185,8 +216,8 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAnswer('En que puedo ayudar
 
 
         }
-    },
-)
+    }
+    )
 
 const main = async () => {
     const adapterDB = new JsonFileAdapter()
