@@ -5,10 +5,11 @@ import dotenv from 'dotenv-safe'
 import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
 import { processAudio } from './services/Huggingface.js';
-import { isAudio, isImage, simulateTyping, simulateEndPause, formatText, timeout } from './utils/index.js'
+import { isAudio, isImage, isPdf, isPdfWithCaption, simulateTyping, simulateEndPause, formatText, timeout, divideTextInTokens } from './utils/index.js'
 import { downloadMediaMessage } from '@whiskeysockets/baileys'
 import BingAI from './services/BingAI.js';
 import ChatGPT from './services/ChatGPT.js';
+import { pdfToText } from './services/PdfToText.js';
 
 dotenv.config()
 
@@ -27,7 +28,9 @@ const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { fallBack, 
     gotoFlow(flowBotWelcome)
 })
 
-const flowBotDoc = addKeyword(EVENTS.DOCUMENT).addAnswer('solo permito texto')
+const flowBotDoc = addKeyword(EVENTS.DOCUMENT).addAction(async (ctx, { fallBack, flowDynamic, gotoFlow, provider }) => {
+    gotoFlow(flowBotWelcome)
+})
 
 const flowBotAudio = addKeyword(EVENTS.VOICE_NOTE).addAction(async (ctx, { fallBack, flowDynamic, gotoFlow, provider }) => {
     gotoFlow(flowBotWelcome)
@@ -39,6 +42,8 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
     .addAction(async (ctx, { fallBack, flowDynamic, endFlow, gotoFlow, provider, state }) => {
         // simulate typing
         await simulateTyping(ctx, provider)
+
+        console.log('ctx flowBotWelcome', ctx)
 
         if (isAudio(ctx)) {
             // process audio
@@ -55,9 +60,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
         }
 
         let imageBase64 = null
+        let context = null
         if (isImage(ctx)) {
 
             await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍🖼️⏳💭' }, { quoted: ctx })
+            await simulateEndPause(ctx, provider)
             await simulateTyping(ctx, provider)
             const buffer = await downloadMediaMessage(ctx, 'buffer')
             // buffer to base64
@@ -65,21 +72,58 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
             ctx.body = ctx.message?.imageMessage?.caption ?? ''
         }
 
+        // if (isPdf(ctx)) {
+        //     await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+        //     await simulateEndPause(ctx, provider)
+        //     await simulateTyping(ctx, provider)
+        //     const buffer = await downloadMediaMessage(ctx, 'buffer')
+        //     // buffer to base64
+        //     imageBase64 = buffer.toString('base64')
+        //     console.log('ctx.message?.documentMessage?.caption', ctx.message?.documentMessage?.caption)
+        //     console.log('ctx.message?.documentWithCaptionMessage?.message?.message?.caption', ctx.message?.documentWithCaptionMessage?.message?.message?.caption)
+        //     ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? '' // messageCtx.message?.documentWithCaptionMessage.message.documentMessage
+        //     const pdfText = await pdfToText(buffer)
+        //     context = divideTextInTokens(pdfText, 3000)
+        //     context = context[0].substring(0, 3500)
+        //     console.log('body', ctx.body)
+        //     console.log('context', context)
+        // }
+        // if (isPdfWithCaption(ctx)) {
+        //     await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+        //     await simulateEndPause(ctx, provider)
+        //     await simulateTyping(ctx, provider)
+        //     const buffer = await downloadMediaMessage(ctx, 'buffer')
+        //     // buffer to base64
+        //     imageBase64 = buffer.toString('base64')
+        //     console.log('ctx.message?.documentWithCaptionMessage?.message?.message?.caption', ctx.message?.documentWithCaptionMessage?.message?.message?.caption)
+        //     ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? ''
+        //     const pdfText = await pdfToText(buffer)
+        //     context = divideTextInTokens(pdfText, 3000)
+        //     context = context[0].substring(0, 3500)
+        //     console.log('body', ctx.body)
+        //     console.log('context', context)
+        // }
+
         // restart conversation
         if (ctx.body.toLowerCase().trim().includes('reiniciar') || ctx.body.toLowerCase().trim().includes('restart')) {
             state.update({
                 name: ctx.pushName ?? ctx.from,
+                conversationBot: null,
                 conversationNumber: 0,
                 finishedAnswer: true
             })
 
 
-            await flowDynamic('REINICIANDO CONVERSACION')
+            await flowDynamic('Reiniciando conversación')
             await simulateEndPause(ctx, provider)
             await gotoFlow(flowBotWelcome)
 
             return
         }
+
+
+        
+        process.env.CONTEXT = context
 
         if (!state?.getMyState()?.conversationBot) {
 
@@ -91,7 +135,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                         jailbreakConversationId: true,
                         toneStyle: 'precise', // or creative, precise, fast default: balanced 
                         plugins: [],
-                        context: null,
+                        ...context && { context },
                         ...imageBase64 && { imageBase64 },
                     }),
                         {

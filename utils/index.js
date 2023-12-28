@@ -6,6 +6,15 @@ const isAudio = (msg) => {
     return msg?.message?.audioMessage ? true : false
 }
 
+const isPdf = (msg) => {
+    return msg?.message?.documentMessage?.mimetype === 'application/pdf' ? true : false
+}
+
+const isPdfWithCaption = (msg) => {
+    return msg?.message?.documentWithCaptionMessage?.message.documentMessage?.mimetype === 'application/pdf' ? true : false
+}
+
+
 const isQuotedMessage = (msg, type = 'imageMessage') => {
     return msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage[type] ? true : false;
 }
@@ -40,12 +49,37 @@ const timeout = (ms) => new Promise((resolve, reject) => {
 });
 
 
+const divideTextInTokens = (text, maxTokens = 10000) => {
+    let tokens = text.split(' ');
+    let segments = [];
+    let currentSegment = [];
+
+    tokens.forEach(token => {
+        if (currentSegment.length + 1 <= maxTokens) {
+            currentSegment.push(token);
+        } else {
+            segments.push(currentSegment.join(' '));
+            currentSegment = [token];
+        }
+    });
+
+    if (currentSegment.length > 0) {
+        segments.push(currentSegment.join(' '));
+    }
+
+    return segments;
+}
+
+
 export {
     isAudio,
     isImage,
+    isPdf,
+    isPdfWithCaption,
     simulateEndPause,
     simulateTyping,
     formatText,
     timeout,
-    isQuotedMessage
+    isQuotedMessage,
+    divideTextInTokens
 }

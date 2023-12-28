@@ -25,6 +25,7 @@
         "mime-types": "2.1.35",
         "ora": "^8.0.1",
         "p-queue": "^8.0.1",
+        "pdf-parse": "^1.1.1",
         "wa-sticker-formatter": "4.4.4",
         "ws": "^8.15.1"
     },
