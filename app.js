@@ -37,7 +37,6 @@ const flowBotLocation = addKeyword(EVENTS.LOCATION).addAnswer('No permito leer u
 
 const flowBotWelcome = addKeyword(EVENTS.WELCOME)
     .addAction(async (ctx, { fallBack, flowDynamic, endFlow, gotoFlow, provider, state }) => {
-        console.log(JSON.stringify(ctx, null, 2));
         // simulate typing
         await simulateTyping(ctx, provider)
 
