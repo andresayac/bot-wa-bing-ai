@@ -43,8 +43,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
         // simulate typing
         await simulateTyping(ctx, provider)
 
-        console.log('ctx flowBotWelcome', ctx)
-
         if (isAudio(ctx)) {
             // process audio
             await flowDynamic('Escuchando Audio');
