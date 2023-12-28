@@ -6,6 +6,10 @@ const isAudio = (msg) => {
     return msg?.message?.audioMessage ? true : false
 }
 
+const isQuotedMessage = (msg, type = 'imageMessage') => {
+    return msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage[type] ? true : false;
+}
+
 const simulateTyping = async (ctx, provider) => {
     // view message 
     await provider.vendor.readMessages([ctx?.key])
@@ -26,13 +30,22 @@ const formatText = (text) => {
     text = text.replace(/-[a-z]/g, '')
 
     return text
-  
+
 }
+
+const timeout = (ms) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        reject(new Error('Tiempo de espera excedido'));
+    }, ms);
+});
+
 
 export {
     isAudio,
     isImage,
     simulateEndPause,
     simulateTyping,
-    formatText
+    formatText,
+    timeout,
+    isQuotedMessage
 }
