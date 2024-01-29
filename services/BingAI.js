@@ -11,7 +11,7 @@ export default class BingAI {
         };
 
         const clientOptions = {
-            userToken: this.clientOptions.userToken || null,
+            cookies: this.clientOptions.cookies || null,
         };
 
         this.BingAIClient = new BingAIClient({

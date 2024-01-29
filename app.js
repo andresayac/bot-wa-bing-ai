@@ -5,16 +5,16 @@ import dotenv from 'dotenv-safe'
 import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
 import { processAudio } from './services/Huggingface.js';
-import { isAudio, isImage, isPdf, isPdfWithCaption, simulateTyping, simulateEndPause, formatText, timeout, divideTextInTokens } from './utils/index.js'
+import { isAudio, isImage, isPdf, isPdfWithCaption, simulateTyping, simulateEndPause, formatText, timeout, divideTextInTokens, removeEmojis, removeSymbols } from './utils/index.js'
 import { downloadMediaMessage } from '@whiskeysockets/baileys'
 import BingAI from './services/BingAI.js';
-import ChatGPT from './services/ChatGPT.js';
 import { pdfToText } from './services/PdfToText.js';
+import { textToSpeech } from './services/TextToSpeech.js';
 
 dotenv.config()
 
 const bingAI = new BingAI({
-    userToken: process.env.BINGAI_TOKEN,
+    cookies: process.env.BINGAI_COOKIES,
     debug: false
 })
 
@@ -46,7 +46,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
         // simulate typing
         await simulateTyping(ctx, provider)
 
+        let isAudioConversation = false
+
         if (isAudio(ctx)) {
+            isAudioConversation = true
             // process audio
             await flowDynamic('Escuchando Audio');
             const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -123,7 +126,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
         }
 
 
-        
+
         process.env.CONTEXT = context
 
         if (!state?.getMyState()?.conversationBot) {
@@ -146,7 +149,14 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                     timeout(maxTimeQueue)
                 ]));
 
+
                 await flowDynamic(formatText(response.response) ?? 'Error')
+
+                if (isAudioConversation) {
+                    const audioBuffer = await textToSpeech(removeEmojis(response.response), 'es')
+                    await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                }                
+
                 const isImageResponse = await bingAI.detectImageInResponse(response)
 
                 if (isImageResponse?.srcs?.length > 0) {

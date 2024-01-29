@@ -70,6 +70,18 @@ const divideTextInTokens = (text, maxTokens = 10000) => {
     return segments;
 }
 
+const removeEmojis = (text) => {
+    return text.replace(/[\uD800-\uDFFF]./g, '');
+}
+
+const removeSymbols = (text, symbols = ['*']) => {    
+    symbols.forEach(symbol => {
+        text = text.replace(new RegExp(`\\${symbol}`, 'g'), '');
+    });
+
+    return text;
+
+}
 
 export {
     isAudio,
@@ -81,5 +93,7 @@ export {
     formatText,
     timeout,
     isQuotedMessage,
-    divideTextInTokens
+    divideTextInTokens,
+    removeEmojis,
+    removeSymbols
 }
