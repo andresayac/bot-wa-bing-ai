@@ -26,7 +26,7 @@ const systemMessage = "You're an AI assistant named Sydney. Instead of introduci
 
 
 const maxTimeQueue = 600000;
-const queue = new PQueue({ concurrency: 1 });
+const queue = new PQueue({ concurrency: 2 });
 
 const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { fallBack, flowDynamic, gotoFlow, provider }) => {
     gotoFlow(flowBotWelcome)
@@ -139,12 +139,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                         systemMessage: systemMessage
                     }),
                         {
-                            text: 'Esperando respuesta de: ' + prompt
+                            text: `Esperando respuesta para:${ctx.from}: ` + prompt
                         }),
                     timeout(maxTimeQueue)
                 ]).catch(error => {
                     console.error(error);
-                    return { response: 'Error' }
                 })
                 )
 
@@ -190,7 +189,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
 
             // stop typing
             await simulateEndPause(ctx, provider)
-            await fallBack()
             return
         }
 
@@ -221,12 +219,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                             ...imageBase64 && { imageBase64 },
                         }),
                             {
-                                text: 'Esperando respuesta de: ' + prompt
+                                text: `Esperando respuesta para:${ctx.from}: ` + prompt
                             }),
                         timeout(maxTimeQueue)
                     ]).catch(error => {
-                        console.error('Ocurrió un error:', error);
-                        return { response: 'Error' }
+                        console.error('Ocurrió un error:', error);                      
                     })
                 );
 
@@ -269,7 +266,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
             }
 
             await simulateEndPause(ctx, provider);
-            await fallBack()
             return
 
 
