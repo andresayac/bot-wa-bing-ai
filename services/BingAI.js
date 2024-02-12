@@ -1,18 +1,15 @@
-import { BingAIClient } from '@waylaidwanderer/chatgpt-api';
-import { KeyvFile } from 'keyv-file';
-import cheerio from 'cheerio';
+import { BingAIClient } from '@waylaidwanderer/chatgpt-api'
+import cheerio from 'cheerio'
 
 export default class BingAI {
     constructor(options) {
-        this.clientOptions = options || {};
+        this.clientOptions = options || {}
 
-        const cacheOptions = {
-            // store: new KeyvFile({ filename: this.clientOptions.cacheFile || '/cache/cache.json' }),
-        };
+        const cacheOptions = {}
 
         const clientOptions = {
             cookies: this.clientOptions.cookies || null,
-        };
+        }
 
         this.BingAIClient = new BingAIClient({
             ...clientOptions,
@@ -21,53 +18,56 @@ export default class BingAI {
                 genImage: true,
             },
             debug: false,
-
-        });
+        })
     }
 
     async sendMessage(message, options) {
-        const response = await this.BingAIClient.sendMessage(message, options);
-        return response;
+        const response = await this.BingAIClient.sendMessage(message, options)
+        return response
     }
 
     async detectImageInResponse(response) {
-        //  details.adaptiveCards[0].body[0].text 
-        // buscar class="mimg" de <img y extraer los src de cada uno
-        // get text from response
         const conversationResponse = response.response
         const iframeContent = response?.details?.adaptiveCards[0]?.body[0]?.text
-        //replace in iframeContent conversationResponse
         const html = iframeContent?.replace(conversationResponse, '') ?? ''
         const images = this.extractLinksAndImagesFromIframe(html) || []
         return images
-
     }
 
     extractLinksAndImagesFromIframe(html) {
         // Load the main HTML content
-        const $ = cheerio.load(html);
+        const $ = cheerio.load(html)
 
         // Find the iframe and extract its srcdoc content
-        const iframeSrcDoc = $('iframe').attr('srcdoc');
+        const iframeSrcDoc = $('iframe').attr('srcdoc')
         if (!iframeSrcDoc) {
-            return null;
+            return null
         }
 
         // Load the iframe content
-        const iframe$ = cheerio.load(iframeSrcDoc);
+        const iframe$ = cheerio.load(iframeSrcDoc)
 
         // Extract URLs and SRC attributes, ignoring those not starting with http or https
-        const urls = iframe$('a').map((i, link) => iframe$(link).attr('href'))
+        const urls = iframe$('a')
+            .map((i, link) => {
+                return iframe$(link).attr('href')
+            })
             .get()
-            .filter(href => href.startsWith('http://') || href.startsWith('https://'));
-        const srcs = iframe$('img').map((i, img) => iframe$(img).attr('src'))
+            .filter((href) => {
+                return href.startsWith('http://') || href.startsWith('https://')
+            })
+        const srcs = iframe$('img')
+            .map((i, img) => {
+                return iframe$(img).attr('src')
+            })
             .get()
-            .filter(src => src.startsWith('http://') || src.startsWith('https://'));
+            .filter((src) => {
+                return src.startsWith('http://') || src.startsWith('https://')
+            })
 
         return {
             urls,
-            srcs
-        };
-
+            srcs,
+        }
     }
 }

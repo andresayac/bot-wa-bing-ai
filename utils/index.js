@@ -1,30 +1,29 @@
 const isImage = (msg) => {
-    return msg?.message?.imageMessage ? true : false
+    return Boolean(msg?.message?.imageMessage)
 }
 
 const isAudio = (msg) => {
-    return msg?.message?.audioMessage ? true : false
+    return Boolean(msg?.message?.audioMessage)
 }
 
 const isPdf = (msg) => {
-    return msg?.message?.documentMessage?.mimetype === 'application/pdf' ? true : false
+    return msg?.message?.documentMessage?.mimetype === 'application/pdf'
 }
 
 const isPdfWithCaption = (msg) => {
-    return msg?.message?.documentWithCaptionMessage?.message.documentMessage?.mimetype === 'application/pdf' ? true : false
+    return msg?.message?.documentWithCaptionMessage?.message.documentMessage?.mimetype === 'application/pdf'
 }
 
-
 const isQuotedMessage = (msg, type = 'imageMessage') => {
-    return msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage[type] ? true : false;
+    return Boolean(msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage[type])
 }
 
 const simulateTyping = async (ctx, provider) => {
-    // view message 
+    // View message
     await provider.vendor.readMessages([ctx?.key])
     await provider.vendor.presenceSubscribe(ctx?.key?.remoteJid)
 
-    // simulare writing
+    // Simulare writing
     await provider.vendor.sendPresenceUpdate('composing', ctx?.key?.remoteJid)
 }
 
@@ -33,54 +32,53 @@ const simulateEndPause = async (ctx, provider) => {
 }
 
 const formatText = (text) => {
-    // replace ** to *
+    // Replace ** to *
     text = text.replace(/\*\*/g, '*')
     text = text.replace(/\[\^[0-9]+\^\]/g, '')
     text = text.replace(/-[a-z]/g, '')
 
     return text
-
 }
 
-const timeout = (ms) => new Promise((resolve, reject) => {
-    setTimeout(() => {
-        reject(new Error('Tiempo de espera excedido'));
-    }, ms);
-});
-
+const timeout = (ms) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            reject(new Error('Tiempo de espera excedido'))
+        }, ms)
+    })
+}
 
 const divideTextInTokens = (text, maxTokens = 10000) => {
-    let tokens = text.split(' ');
-    let segments = [];
-    let currentSegment = [];
+    const tokens = text.split(' ')
+    const segments = []
+    let currentSegment = []
 
-    tokens.forEach(token => {
+    tokens.forEach((token) => {
         if (currentSegment.length + 1 <= maxTokens) {
-            currentSegment.push(token);
+            currentSegment.push(token)
         } else {
-            segments.push(currentSegment.join(' '));
-            currentSegment = [token];
+            segments.push(currentSegment.join(' '))
+            currentSegment = [token]
         }
-    });
+    })
 
     if (currentSegment.length > 0) {
-        segments.push(currentSegment.join(' '));
+        segments.push(currentSegment.join(' '))
     }
 
-    return segments;
+    return segments
 }
 
 const removeEmojis = (text) => {
-    return text.replace(/[\uD800-\uDFFF]./g, '');
+    return text.replace(/[\uD800-\uDFFF]./g, '')
 }
 
-const removeSymbols = (text, symbols = ['*']) => {    
-    symbols.forEach(symbol => {
-        text = text.replace(new RegExp(`\\${symbol}`, 'g'), '');
-    });
+const removeSymbols = (text, symbols = ['*']) => {
+    symbols.forEach((symbol) => {
+        text = text.replace(new RegExp(`\\${symbol}`, 'g'), '')
+    })
 
-    return text;
-
+    return text
 }
 
 export {
@@ -95,5 +93,5 @@ export {
     isQuotedMessage,
     divideTextInTokens,
     removeEmojis,
-    removeSymbols
+    removeSymbols,
 }
