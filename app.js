@@ -142,10 +142,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                             text: 'Esperando respuesta de: ' + prompt
                         }),
                     timeout(maxTimeQueue)
-                ])).catch(error => {
+                ]).catch(error => {
                     console.error(error);
+                    return { response: 'Error' }
                 })
-
+                )
 
                 await flowDynamic(formatText(response.response) ?? 'Error')
 
@@ -210,20 +211,24 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
             })
 
             try {
-                const response = await queue.add(() => Promise.race([
-                    oraPromise(bingAI.sendMessage(prompt, {
-                        jailbreakConversationId: state.getMyState()?.conversationBot.jailbreakConversationId,
-                        parentMessageId: state.getMyState()?.conversationBot.messageId,
-                        toneStyle: 'precise',
-                        plugins: [],
-                        ...imageBase64 && { imageBase64 },
-                    }),
-                        {
-                            text: 'Esperando respuesta de: ' + prompt
-                        }
-                    ),
-                    timeout(maxTimeQueue)
-                ]));
+                const response = await queue.add(() =>
+                    Promise.race([
+                        oraPromise(bingAI.sendMessage(prompt, {
+                            jailbreakConversationId: state.getMyState()?.conversationBot.jailbreakConversationId,
+                            parentMessageId: state.getMyState()?.conversationBot.messageId,
+                            toneStyle: isPdfConversation ? 'creative' : 'precise', // or creative, precise, fast default: balanced 
+                            plugins: [],
+                            ...imageBase64 && { imageBase64 },
+                        }),
+                            {
+                                text: 'Esperando respuesta de: ' + prompt
+                            }),
+                        timeout(maxTimeQueue)
+                    ]).catch(error => {
+                        console.error('Ocurrió un error:', error);
+                        return { response: 'Error' }
+                    })
+                );
 
                 await flowDynamic(formatText(response.response) ?? 'Error');
                 const isImageResponse = await bingAI.detectImageInResponse(response)

@@ -11,17 +11,17 @@
     "keywords": [],
     "dependencies": {
         "@adiwajshing/keyed-db": "^0.2.4",
-        "@bot-whatsapp/bot": "^0.1.35",
-        "@bot-whatsapp/cli": "^0.1.35",
-        "@bot-whatsapp/database": "^0.1.35",
-        "@bot-whatsapp/provider": "^0.1.35",
+        "@bot-whatsapp/bot": "^0.1.38",
+        "@bot-whatsapp/cli": "^0.1.38",
+        "@bot-whatsapp/database": "^0.1.38",
+        "@bot-whatsapp/provider": "^0.1.38",
         "@timefox/bic-sydney": "^1.1.4",
         "@waylaidwanderer/chatgpt-api": "github:Richard-Weiss/node-chatgpt-api",
         "@whiskeysockets/baileys": "^6.6.0",
-        "axios": "^1.6.2",
+        "axios": "^1.6.7",
         "chatgpt": "^5.2.5",
         "cheerio": "^1.0.0-rc.12",
-        "dotenv-safe": "^8.2.0",
+        "dotenv-safe": "^9.0.0",
         "mime-types": "2.1.35",
         "node-fetch": "^3.3.2",
         "ora": "^8.0.1",
@@ -29,7 +29,7 @@
         "pdf-parse": "^1.1.1",
         "uuid": "^9.0.1",
         "wa-sticker-formatter": "4.4.4",
-        "ws": "^8.15.1"
+        "ws": "^8.16.0"
     },
     "author": "",
     "license": "ISC"
