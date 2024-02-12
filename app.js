@@ -14,6 +14,7 @@ import { textToSpeech } from './services/TextToSpeech.js';
 dotenv.config()
 
 const bingAI = new BingAI({
+    host: process.env.BINGAI_HOST ?? 'https://www.bing.com',
     cookies: process.env.BINGAI_COOKIES,
     debug: false
 })
@@ -47,6 +48,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
         await simulateTyping(ctx, provider)
 
         let isAudioConversation = false
+        let isPdfConversation = false
 
         if (isAudio(ctx)) {
             isAudioConversation = true
@@ -76,37 +78,31 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
             ctx.body = ctx.message?.imageMessage?.caption ?? ''
         }
 
-        // if (isPdf(ctx)) {
-        //     await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
-        //     await simulateEndPause(ctx, provider)
-        //     await simulateTyping(ctx, provider)
-        //     const buffer = await downloadMediaMessage(ctx, 'buffer')
-        //     // buffer to base64
-        //     imageBase64 = buffer.toString('base64')
-        //     console.log('ctx.message?.documentMessage?.caption', ctx.message?.documentMessage?.caption)
-        //     console.log('ctx.message?.documentWithCaptionMessage?.message?.message?.caption', ctx.message?.documentWithCaptionMessage?.message?.message?.caption)
-        //     ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? '' // messageCtx.message?.documentWithCaptionMessage.message.documentMessage
-        //     const pdfText = await pdfToText(buffer)
-        //     context = divideTextInTokens(pdfText, 3000)
-        //     context = context[0].substring(0, 3500)
-        //     console.log('body', ctx.body)
-        //     console.log('context', context)
-        // }
-        // if (isPdfWithCaption(ctx)) {
-        //     await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
-        //     await simulateEndPause(ctx, provider)
-        //     await simulateTyping(ctx, provider)
-        //     const buffer = await downloadMediaMessage(ctx, 'buffer')
-        //     // buffer to base64
-        //     imageBase64 = buffer.toString('base64')
-        //     console.log('ctx.message?.documentWithCaptionMessage?.message?.message?.caption', ctx.message?.documentWithCaptionMessage?.message?.message?.caption)
-        //     ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? ''
-        //     const pdfText = await pdfToText(buffer)
-        //     context = divideTextInTokens(pdfText, 3000)
-        //     context = context[0].substring(0, 3500)
-        //     console.log('body', ctx.body)
-        //     console.log('context', context)
-        // }
+        if (isPdf(ctx)) {
+            isPdfConversation = true
+            await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+            await simulateEndPause(ctx, provider)
+            await simulateTyping(ctx, provider)
+            const buffer = await downloadMediaMessage(ctx, 'buffer')
+            // buffer to base64
+            imageBase64 = buffer.toString('base64')
+            ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? '' // messageCtx.message?.documentWithCaptionMessage.message.documentMessage
+            const pdfText = await pdfToText(buffer)
+            context = divideTextInTokens(pdfText, 3000)
+            context = context[0].substring(0, 3500)
+        }
+        if (isPdfWithCaption(ctx)) {
+            await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+            await simulateEndPause(ctx, provider)
+            await simulateTyping(ctx, provider)
+            const buffer = await downloadMediaMessage(ctx, 'buffer')
+            // buffer to base64
+            imageBase64 = buffer.toString('base64')
+            ctx.body = ctx.message?.documentWithCaptionMessage?.message.documentMessage?.caption ?? ''
+            const pdfText = await pdfToText(buffer)
+            context = divideTextInTokens(pdfText, 3000)
+            context = context[0].substring(0, 3500)
+        }
 
         // restart conversation
         if (ctx.body.toLowerCase().trim().includes('reiniciar') || ctx.body.toLowerCase().trim().includes('restart')) {
@@ -116,7 +112,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                 conversationNumber: 0,
                 finishedAnswer: true
             })
-
 
             await flowDynamic('Reiniciando conversación')
             await simulateEndPause(ctx, provider)
@@ -137,7 +132,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                 const response = await queue.add(() => Promise.race([
                     oraPromise(bingAI.sendMessage(prompt, {
                         jailbreakConversationId: true,
-                        toneStyle: 'precise', // or creative, precise, fast default: balanced 
+                        toneStyle: isPdfConversation ? 'creative' : 'precise', // or creative, precise, fast default: balanced 
                         plugins: [],
                         ...context && { context },
                         ...imageBase64 && { imageBase64 },
@@ -147,7 +142,9 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                             text: 'Esperando respuesta de: ' + prompt
                         }),
                     timeout(maxTimeQueue)
-                ]));
+                ])).catch(error => {
+                    console.error(error);
+                })
 
 
                 await flowDynamic(formatText(response.response) ?? 'Error')
@@ -155,7 +152,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                 if (isAudioConversation) {
                     const audioBuffer = await textToSpeech(removeEmojis(response.response), 'es')
                     await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
-                }                
+                }
 
                 const isImageResponse = await bingAI.detectImageInResponse(response)
 
@@ -184,6 +181,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME)
                 })
 
             } catch (error) {
+                console.log(error)
                 state.update({ finishedAnswer: true });
                 await flowDynamic('Error');
                 await endFlow()

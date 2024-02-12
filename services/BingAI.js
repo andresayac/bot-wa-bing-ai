@@ -37,7 +37,7 @@ export default class BingAI {
         const conversationResponse = response.response
         const iframeContent = response?.details?.adaptiveCards[0]?.body[0]?.text
         //replace in iframeContent conversationResponse
-        const html = iframeContent.replace(conversationResponse, '')
+        const html = iframeContent?.replace(conversationResponse, '') ?? ''
         const images = this.extractLinksAndImagesFromIframe(html) || []
         return images
 
