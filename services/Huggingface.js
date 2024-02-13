@@ -1,7 +1,4 @@
-import dotenv from 'dotenv-safe'
 import WebSocket from 'ws'
-
-dotenv.config()
 
 const processImage = async (imageBuffer) => {
     const base64Image = imageBuffer.toString('base64')
@@ -19,7 +16,6 @@ const processImage = async (imageBuffer) => {
         const sessionHash = Math.random().toString(36).substring(2)
         // eslint-disable-next-line camelcase
         ws.send(JSON.stringify({ session_hash: sessionHash, fn_index: 0 }))
-        // eslint-disable-next-line camelcase
         ws.send(
             // eslint-disable-next-line camelcase
             JSON.stringify({ fn_index: 0, data: ['data:image/jpegbase64,' + base64Image], session_hash: sessionHash }),

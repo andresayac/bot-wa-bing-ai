@@ -15,9 +15,9 @@ export default class BingAI {
             ...clientOptions,
             cache: cacheOptions,
             features: {
-                genImage: true,
+                genImage: this.clientOptions.genImage || false,
             },
-            debug: false,
+            debug: this.clientOptions.debug || false,
         })
     }
 
