@@ -4,7 +4,7 @@ Este chatbot utiliza la versión gratuita de Bing usando .
 [Read in English](README.md)
 
 ## Instalación
-1.Clona el repositorio en tu máquina local o servidor usando git clone https://github.com/andresayac/bot-chatgpt.git
+1.Clona el repositorio en tu máquina local o servidor usando git clone https://github.com/andresayac/bot-wa-bing-ai.git
 2. Navega al directorio del proyecto clonado y ejecuta npm install para instalar todas las dependencias necesarias.
 3. Copia el archivo .env.example y cámbiale el nombre a .env. Luego, completa las variables de entorno necesarias en el archivo .env.
 
