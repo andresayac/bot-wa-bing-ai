@@ -35,6 +35,8 @@ const bingAI = new BingAI({
     debug: process.env.BING_AI_DEBUG === 'true',
 })
 
+const bingAIMode = process.env.BING_AI_MODE ?? 'precise'
+
 const languageBot = languages[process.env.BOT_LANGUAGE ?? 'es']
 
 const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
@@ -183,7 +185,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                             oraPromise(
                                 bingAI.sendMessage(prompt, {
                                     jailbreakConversationId: true,
-                                    toneStyle: isPdfConversation ? 'creative' : 'precise', // Values [creative, precise, fast] default: balanced
+                                    toneStyle: isPdfConversation ? 'creative' : bingAIMode, // Values [creative, precise, fast] default: balanced
                                     plugins: [],
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
@@ -281,7 +283,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     jailbreakConversationId:
                                         state.getMyState()?.conversationBot.jailbreakConversationId,
                                     parentMessageId: state.getMyState()?.conversationBot.messageId,
-                                    toneStyle: isPdfConversation ? 'creative' : 'precise', // VAlues or [creative, precise, fast] default: balanced
+                                    toneStyle: isPdfConversation ? 'creative' : bingAIMode, // VAlues or [creative, precise, fast] default: balanced
                                     plugins: [],
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),

@@ -20,6 +20,7 @@ This section describes the necessary environment variables to configure the Bing
 - **BING_AI_SYSTEM_MESSAGE**: System message used by the Bing AI assistant. It defines the behavior of the assistant in conversations.
 - **BING_AI_GENERATE_IMAGE**: Indicates whether to generate images as part of Bing AI assistant responses.
 - **BING_AI_DEBUG**: Indicates whether to enable debug mode for the Bing AI assistant.
+- **BING_AI_MODE**: Bing AI mode is default to 'precise' GPT-4. It can be 'turbo', 'precise', or 'balanced'. 'Turbo' is the creative mode.
 
 #### Configuration Variables BOT
 - **BOT_LANGUAGE**: Default language used by the bot. It can be 'en' (English), 'es' (Spanish), 'fr' (French), 'de' (German), 'it' (Italian), 'pt' (Portuguese), 'zh' (Chinese), or 'ja' (Japanese).
