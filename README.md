@@ -1,6 +1,6 @@
-# Chatbot ChatGPT Free [English]
+# Chatbot BingGPT-4 Free [English]
 
-This chatbot utilizes the free version of ChatGPT through reverse engineering to provide automated conversation flows. You can set up automated responses to frequently asked questions, receive and respond to messages in an automated way, and track interactions with customers. In addition, you can easily set up triggers that will help you expand functionalities without limits.
+This chatbot utilizes the free version of bing using .
 
 [Leer en español](README.es.md)
 
@@ -10,21 +10,29 @@ This chatbot utilizes the free version of ChatGPT through reverse engineering to
 2. Navigate to the cloned project directory and run `npm install` to install all the necessary dependencies.
 3. Copy the `.env.example` file and rename it to `.env`. Then, fill in the necessary environment variables in the `.env` file.
 
-## Bot Language
+## ENV Configuration
+#### BING AI Configuration
+This section describes the necessary environment variables to configure the Bing AI service.
 
-By default, the bot is set to English. If you want to change the language, you can do so by changing the `LANGUAGE_BOT` variable in the `.env` file to your desired language. For example, for Spanish, you would set `LANGUAGE_BOT=es`.
+#### Environment Variables
+- **BING_AI_HOST**: The URL of the Bing AI server.
+- **BING_AI_COOKIES**: Cookies required for authentication on the Bing AI server.
+- **BING_AI_SYSTEM_MESSAGE**: System message used by the Bing AI assistant. It defines the behavior of the assistant in conversations.
+- **BING_AI_GENERATE_IMAGE**: Indicates whether to generate images as part of Bing AI assistant responses.
+- **BING_AI_DEBUG**: Indicates whether to enable debug mode for the Bing AI assistant.
 
-## Reverse Proxy URL
+#### Configuration Variables BOT
+- **BOT_LANGUAGE**: Default language used by the bot. It can be 'en' (English), 'es' (Spanish), 'fr' (French), 'de' (German), 'it' (Italian), 'pt' (Portuguese), 'zh' (Chinese), or 'ja' (Japanese).
+- **BOT_RECONGNIZE_AUDIO**: Indicates whether the bot should recognize audio messages.
+- **BOT_RECONGNIZE_IMAGE**: Indicates whether the bot should recognize images.
+- **BOT_RECONGNIZE_PDF**: Indicates whether the bot should recognize PDF files.
+- **BOT_TEXT_TO_SPEECH**: Indicates whether the bot should convert text to speech.
 
-Before obtaining the access token, make sure to set the `URL_REVERSE_PROXY` in the `.env` file. You can use the reverse proxies listed in the used library as a reference: [default](https://github.com/transitive-bullshit/chatgpt-api#reverse-proxy)
+**Note**: Make sure to configure these environment variables correctly before running the bot for proper functionality.
 
-## Obtaining Access Token
+## API BING URL
 
-To complete the `.env` file, you will need to obtain an access token. You can manually get an access token by logging in to the ChatGPT webapp and then opening [https://chat.openai.com/api/auth/session](https://chat.openai.com/api/auth/session), which will return a JSON object containing your access token string.
-
-Access tokens last for days.
-
-Note: using a reverse proxy will expose your access token to a third-party. There shouldn't be any adverse effects possible from this, but please consider the risks before using this method.
+Reference: [node-chatgpt-api](https://github.com/Richard-Weiss/node-chatgpt-api)
 
 ## Running the Bot
 Once you have completed the `.env` file, you can start the bot by running `npm start`.

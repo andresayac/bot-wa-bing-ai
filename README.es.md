@@ -1,36 +1,41 @@
-# Chatbot ChatGPT Free
+#  Chatbot BingGPT-4 Gratis [Español]
+Este chatbot utiliza la versión gratuita de Bing usando .
 
-Este chatbot utiliza la versión gratuita de ChatGPT a través de ingeniería inversa para proporcionar flujos de conversación automatizados. Puedes configurar respuestas automatizadas para preguntas frecuentes, recibir y responder mensajes de manera automatizada, y hacer un seguimiento de las interacciones con los clientes. Además, puedes configurar fácilmente disparadores que te ayudarán a expandir las funcionalidades sin límites.
+[Read in English](README.md)
 
 ## Instalación
+1.Clona el repositorio en tu máquina local o servidor usando git clone https://github.com/andresayac/bot-chatgpt.git
+2. Navega al directorio del proyecto clonado y ejecuta npm install para instalar todas las dependencias necesarias.
+3. Copia el archivo .env.example y cámbiale el nombre a .env. Luego, completa las variables de entorno necesarias en el archivo .env.
 
-1. Clona el repositorio en tu máquina local o servidor usando `git clone https://github.com/andresayac/bot-chatgpt.git`
-2. Navega al directorio del proyecto clonado y ejecuta `npm install` para instalar todas las dependencias necesarias.
-3. Copia el archivo `.env.example` y renómbralo a `.env`. Luego, completa las variables de entorno necesarias en el archivo `.env`.
 
-## Idioma del Bot
+## Configuración de ENV
+#### Configuración de BING AI
+Esta sección describe las variables de entorno necesarias para configurar el servicio de Bing AI.
 
-Por defecto, el bot está configurado en inglés. Si deseas cambiar el idioma, puedes hacerlo modificando la variable `LANGUAGE_BOT` en el archivo `.env` a tu idioma deseado. Por ejemplo, para español, configurarías `LANGUAGE_BOT=es`.
+#### Variables de entorno
+**BING_AI_HOST**: La URL del servidor de Bing AI.
+**BING_AI_COOKIES**: Cookies necesarias para la autenticación en el servidor de Bing AI.
+**BING_AI_SYSTEM_MESSAGE**: Mensaje del sistema utilizado por el asistente de Bing AI. Define el comportamiento del asistente en conversaciones.
+**BING_AI_GENERATE_IMAGE**: Indica si se deben generar imágenes como parte de las respuestas del asistente de Bing AI.
+**BING_AI_DEBUG**: Indica si se debe habilitar el modo de depuración para el asistente de Bing AI.
+Variables de configuración del BOT
+**BOT_LANGUAGE**: Idioma predeterminado utilizado por el bot. Puede ser 'en' (Inglés), 'es' (Español), 'fr' (Francés), 'de' (Alemán), 'it' (Italiano), 'pt' (Portugués), 'zh' (Chino) o 'ja' (Japonés).
+**BOT_RECONGNIZE_AUDIO**: Indica si el bot debería reconocer mensajes de audio.
+**BOT_RECONGNIZE_IMAGE**: Indica si el bot debería reconocer imágenes.
+**BOT_RECONGNIZE_PDF**: Indica si el bot debería reconocer archivos PDF.
+**BOT_TEXT_TO_SPEECH**: Indica si el bot debería convertir texto en habla.
 
-## URL del Proxy Inverso
+**Nota**: Asegúrate de configurar estas variables de entorno correctamente antes de ejecutar el bot para un funcionamiento adecuado.
 
-Antes de obtener el token de acceso, asegúrate de configurar la `URL_REVERSE_PROXY` en el archivo `.env`. Puedes usar los proxies inversos listados en la biblioteca utilizada como referencia: [default](https://github.com/transitive-bullshit/chatgpt-api#reverse-proxy)
+## URL de la API de Bing
+Referencia: [node-chatgpt-api](https://github.com/Richard-Weiss/node-chatgpt-api)
 
-## Obtención del Token de Acceso
-
-Para completar el archivo `.env`, necesitarás obtener un token de acceso. Puedes obtener un token de acceso manualmente iniciando sesión en la aplicación web de ChatGPT y luego abriendo [https://chat.openai.com/api/auth/session](https://chat.openai.com/api/auth/session), que devolverá un objeto JSON que contiene tu cadena de token de acceso.
-
-Los tokens de acceso duran días.
-
-Nota: el uso de un proxy inverso expondrá tu token de acceso a un tercero. No debería haber posibles efectos adversos de esto, pero por favor considera los riesgos antes de usar este método.
-
-## Ejecución del Bot
-
+## Ejecutar el Bot
 Una vez que hayas completado el archivo `.env`, puedes iniciar el bot ejecutando `npm start`.
 
-
 ## Contribución
-Si deseas contribuir a este proyecto, no dudes en hacerlo. Cualquier tipo de mejora, corrección de errores o nuevas características son bienvenidas.
+Si deseas contribuir a este proyecto, siéntete libre de hacerlo. Cualquier tipo de mejora, corrección de errores o nuevas características son bienvenidas.
 
 ## Licencia
-Este proyecto está licenciado bajo la [MIT](LICENSE).
+Este proyecto está bajo la licencia [MIT](LICENSE).
