@@ -170,7 +170,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
             await flowDynamic(languageBot.restartConversation)
             await simulateEndPause(ctx, provider)
-            await gotoFlow(flowBotWelcome)
+            await endFlow()
 
             return
         }
