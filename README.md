@@ -23,7 +23,7 @@ This section describes the necessary environment variables to configure the Bing
 - **BING_AI_MODE**: Bing AI mode is default to 'precise' GPT-4. It can be 'turbo', 'precise', or 'balanced'. 'Turbo' is the creative mode.
 
 # Extract cookies from Bing
-![cookies](https://raw.githubusercontent.com/andresayac/bot-wa-bing-ai/cookies-bing.gif)
+![cookies](https://raw.githubusercontent.com/andresayac/bot-wa-bing-ai/main/cookies-bing.gif)
 
 #### Configuration Variables BOT
 - **BOT_LANGUAGE**: Default language used by the bot. It can be 'en' (English), 'es' (Spanish), 'fr' (French), 'de' (German), 'it' (Italian), 'pt' (Portuguese), 'zh' (Chinese), or 'ja' (Japanese).
