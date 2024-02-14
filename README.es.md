@@ -21,6 +21,9 @@ Esta sección describe las variables de entorno necesarias para configurar el se
 - **BING_AI_DEBUG**: Indica si se debe habilitar el modo de depuración para el asistente de Bing AI.
 - **BING_AI_MODE**: Modo de Bing AI es predeterminado 'precise' GPT-4. Puede ser 'turbo', 'precise' o 'balanced'. 'Turbo' es el modo creativo.
 
+# Extraer cookies de Bing
+![cookies](https://raw.githubusercontent.com/andresayac/bot-wa-bing-ai/cookies-bing.gif)
+
 #### Configuracion adicional del BOT
 - **BOT_LANGUAGE**: Idioma predeterminado utilizado por el bot. Puede ser 'en' (Inglés), 'es' (Español), 'fr' (Francés), 'de' (Alemán), 'it' (Italiano), 'pt' (Portugués), 'zh' (Chino) o 'ja' (Japonés).
 - **BOT_RECONGNIZE_AUDIO**: Indica si el bot debería reconocer mensajes de audio.
