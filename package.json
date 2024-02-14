@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "pre-copy": "cd .. && npm run  copy.lib base-baileys-json",
-        "start": "node app.js"
+        "start": "node ."
     },
     "keywords": [],
     "dependencies": {
