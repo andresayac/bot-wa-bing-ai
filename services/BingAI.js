@@ -18,6 +18,7 @@ export default class BingAI {
                 genImage: this.clientOptions.genImage || false,
             },
             debug: this.clientOptions.debug || false,
+            systemMessage: process.env.BING_AI_SYSTEM_MESSAGE || 'BingAI',
         })
     }
 
