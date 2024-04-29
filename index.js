@@ -70,6 +70,8 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
         let isAudioConversation = false
         let isPdfConversation = false
         let checkIsoLanguage = null
+        const messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍⏳💭' }, { quoted: ctx })
+        let messageBotTmp = ''
 
         if (isAudio(ctx)) {
             if (process.env.BOT_RECONGNIZE_AUDIO === 'true') {
@@ -191,6 +193,19 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
                                     systemMessage,
+                                    onProgress(token) {
+                                        if (process.env.BOT_MESSAGE_ON_PROCESS === 'true') {
+                                            if (token.includes('iframe')) {
+                                                return // Skip iframes
+                                            }
+
+                                            messageBotTmp += formatText(token)
+                                            provider.vendor.sendMessage(ctx?.key?.remoteJid, {
+                                                edit: messageBot.key,
+                                                text: messageBotTmp,
+                                            })
+                                        }
+                                    },
                                 }),
                                 {
                                     text: `[${ctx.from}] - ${languageBot.waitResponse}: ` + prompt,
@@ -210,7 +225,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     response.response = response.response.replace(checkIsoLanguage, '')
                 }
 
-                await flowDynamic(formatText(response?.response) ?? 'Error')
+                await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
+                    edit: messageBot.key,
+                    text: formatText(response?.response) ?? 'Error',
+                })
 
                 if (isAudioConversation && process.env.BOT_TEXT_TO_SPEECH === 'true') {
                     checkIsoLanguage = checkIsoLanguage.replace('{', '').replace('}', '')
@@ -288,6 +306,19 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     plugins: [],
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
+                                    onProgress(token) {
+                                        if (process.env.BOT_MESSAGE_ON_PROCESS === 'true') {
+                                            if (token.includes('iframe')) {
+                                                return // Skip iframes
+                                            }
+
+                                            messageBotTmp += formatText(token)
+                                            provider.vendor.sendMessage(ctx?.key?.remoteJid, {
+                                                edit: messageBot.key,
+                                                text: messageBotTmp,
+                                            })
+                                        }
+                                    },
                                 }),
                                 {
                                     text: `[${ctx.from}] - ${languageBot.waitResponse}: ` + prompt,
@@ -306,8 +337,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     // Remove iso language in response
                     response.response = response.response.replace(checkIsoLanguage, '')
                 }
-
-                await flowDynamic(formatText(response.response) ?? 'Error')
 
                 if (isAudioConversation) {
                     checkIsoLanguage = checkIsoLanguage.replace('{', '').replace('}', '')
@@ -340,6 +369,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                     await flowDynamic(urls)
                 }
+
+                await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
+                    edit: messageBot.key,
+                    text: formatText(response.response) ?? 'Error',
+                })
 
                 state.update({
                     name: ctx.pushName ?? ctx.from,
