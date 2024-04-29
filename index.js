@@ -45,7 +45,7 @@ const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
 const systemMessage = process.env.BING_AI_SYSTEM_MESSAGE ?? '🤖'
 
 const maxTimeQueue = 600000
-const queue = new PQueue({ concurrency: 1 })
+const queue = new PQueue({ concurrency: 3 })
 
 const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { gotoFlow }) => {
     gotoFlow(flowBotWelcome)
