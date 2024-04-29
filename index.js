@@ -156,10 +156,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         // Restart conversation fr, es, en, zh, it, pr
         if (
-            ctx.body.toLowerCase().trim().includes('reiniciar') ||
-            ctx.body.toLowerCase().trim().includes('restart') ||
-            ctx.body.toLowerCase().trim().includes('重新开始') ||
-            ctx.body.toLowerCase().trim().includes('recommencer')
+            ctx.body.toLowerCase().trim().includes('/reiniciar') ||
+            ctx.body.toLowerCase().trim().includes('/restart') ||
+            ctx.body.toLowerCase().trim().includes('/重新开始') ||
+            ctx.body.toLowerCase().trim().includes('/recommencer')
         ) {
             state.update({
                 name: ctx.pushName ?? ctx.from,
@@ -187,6 +187,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     jailbreakConversationId: true,
                                     toneStyle: isPdfConversation ? 'creative' : bingAIMode, // Values [creative, precise, fast] default: balanced
                                     plugins: [],
+                                    persona: process.env.BING_AI_PERSONA ?? '',
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
                                     systemMessage,
@@ -285,6 +286,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     parentMessageId: state.getMyState()?.conversationBot.messageId,
                                     toneStyle: isPdfConversation ? 'creative' : bingAIMode, // VAlues or [creative, precise, fast] default: balanced
                                     plugins: [],
+                                    persona: process.env.BING_AI_PERSONA ?? '',
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
                                 }),
