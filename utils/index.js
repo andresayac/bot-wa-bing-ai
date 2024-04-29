@@ -60,7 +60,7 @@ const extractLinks = (text) => {
 
 const parseLinksWithText = (text) => {
     const links = extractLinks(text)
-    const formattedText = formatTextWithLinks(text)
+    const formattedText = formatText(formatTextWithLinks(text))
     if (links.length === 0) {
         return formattedText
     }

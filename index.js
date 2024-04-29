@@ -13,7 +13,6 @@ import {
     isPdfWithCaption,
     simulateTyping,
     simulateEndPause,
-    formatText,
     formatTextWithLinks,
     parseLinksWithText,
     timeout,
@@ -204,7 +203,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                             messageBotTmp += token
                                             provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                                                 edit: messageBot.key,
-                                                text: formatText(formatTextWithLinks(messageBotTmp)),
+                                                text: formatTextWithLinks(messageBotTmp),
                                             })
                                         }
                                     },
@@ -229,7 +228,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                 await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                     edit: messageBot.key,
-                    text: formatText(parseLinksWithText(response?.response)) ?? 'Error',
+                    text: parseLinksWithText(response?.response) ?? 'Error',
                 })
 
                 if (isAudioConversation && process.env.BOT_TEXT_TO_SPEECH === 'true') {
@@ -317,7 +316,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                             messageBotTmp += token
                                             provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                                                 edit: messageBot.key,
-                                                text: formatText(formatTextWithLinks(messageBotTmp)),
+                                                text: formatTextWithLinks(messageBotTmp),
                                             })
                                         }
                                     },
@@ -374,7 +373,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                 await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                     edit: messageBot.key,
-                    text: formatText(parseLinksWithText(response?.response)) ?? 'Error',
+                    text: parseLinksWithText(response?.response) ?? 'Error',
                 })
 
                 state.update({
