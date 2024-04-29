@@ -286,7 +286,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                     parentMessageId: state.getMyState()?.conversationBot.messageId,
                                     toneStyle: isPdfConversation ? 'creative' : bingAIMode, // VAlues or [creative, precise, fast] default: balanced
                                     plugins: [],
-                                    persona: process.env.BING_AI_PERSONA ?? '',
                                     ...(context && { context }),
                                     ...(imageBase64 && { imageBase64 }),
                                 }),
