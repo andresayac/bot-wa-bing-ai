@@ -17,7 +17,7 @@
         "@bot-whatsapp/provider": "^0.1.38",
         "@timefox/bic-sydney": "^1.1.4",
         "@waylaidwanderer/chatgpt-api": "github:Richard-Weiss/node-chatgpt-api",
-        "@whiskeysockets/baileys": "^6.6.0",
+        "@whiskeysockets/baileys": "^6.7.0",
         "axios": "^1.6.8",
         "chatgpt": "^5.2.5",
         "cheerio": "^1.0.0-rc.12",
@@ -29,10 +29,10 @@
         "pdf-parse": "^1.1.1",
         "uuid": "^9.0.1",
         "wa-sticker-formatter": "^4.4.4",
-        "ws": "^8.16.0"
+        "ws": "^8.17.0"
     },
     "devDependencies": {
-        "eslint": "^8.57.0",
+        "eslint": "^9.1.1",
         "eslint-config-prettier": "^9.1.0",
         "eslint-config-xo": "^0.44.0",
         "eslint-plugin-prettier": "^5.1.3",
