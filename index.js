@@ -14,6 +14,8 @@ import {
     simulateTyping,
     simulateEndPause,
     formatText,
+    formatTextWithLinks,
+    parseLinksWithText,
     timeout,
     divideTextInTokens,
     removeEmojis,
@@ -199,10 +201,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                                 return // Skip iframes
                                             }
 
-                                            messageBotTmp += formatText(token)
+                                            messageBotTmp += token
                                             provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                                                 edit: messageBot.key,
-                                                text: messageBotTmp,
+                                                text: formatText(formatTextWithLinks(messageBotTmp)),
                                             })
                                         }
                                     },
@@ -227,7 +229,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                 await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                     edit: messageBot.key,
-                    text: formatText(response?.response) ?? 'Error',
+                    text: formatText(parseLinksWithText(response?.response)) ?? 'Error',
                 })
 
                 if (isAudioConversation && process.env.BOT_TEXT_TO_SPEECH === 'true') {
@@ -312,10 +314,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                                                 return // Skip iframes
                                             }
 
-                                            messageBotTmp += formatText(token)
+                                            messageBotTmp += token
                                             provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                                                 edit: messageBot.key,
-                                                text: messageBotTmp,
+                                                text: formatText(formatTextWithLinks(messageBotTmp)),
                                             })
                                         }
                                     },
@@ -372,7 +374,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                 await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                     edit: messageBot.key,
-                    text: formatText(response.response) ?? 'Error',
+                    text: formatText(parseLinksWithText(response?.response)) ?? 'Error',
                 })
 
                 state.update({

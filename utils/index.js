@@ -40,6 +40,38 @@ const formatText = (text) => {
     return text
 }
 
+const formatTextWithLinks = (text) => {
+    return text
+        .replace('¡1]', '[1]')
+        .replace(/^(!|\[)¡?\d+\]:\s+.*\n?/gm, '')
+        .replace(/^\n+/gm, '')
+}
+
+const extractLinks = (text) => {
+    const links = text.match(/\[([0-9]+)\]:\s+(https?:\/\/[^\s]+)\s+""/gm)
+
+    return (
+        links?.map((link) => {
+            const [index, url] = link.match(/\[([0-9]+)\]:\s+(https?:\/\/[^\s]+)\s+""/).slice(1)
+            return { index, url }
+        }) || []
+    )
+}
+
+const parseLinksWithText = (text) => {
+    const links = extractLinks(text)
+    const formattedText = formatTextWithLinks(text)
+    if (!links) {
+        return formattedText
+    }
+
+    const linksText = links.map(({ index, url }) => {
+        return `[${index}]: ${url}\n`
+    })
+
+    return `${formattedText}\n\n${linksText.join('')}`
+}
+
 const timeout = (ms) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -89,6 +121,8 @@ export {
     simulateEndPause,
     simulateTyping,
     formatText,
+    formatTextWithLinks,
+    parseLinksWithText,
     timeout,
     isQuotedMessage,
     divideTextInTokens,
