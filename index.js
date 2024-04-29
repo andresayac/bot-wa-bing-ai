@@ -45,7 +45,7 @@ const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
 const systemMessage = process.env.BING_AI_SYSTEM_MESSAGE ?? '🤖'
 
 const maxTimeQueue = 600000
-const queue = new PQueue({ concurrency: 2 })
+const queue = new PQueue({ concurrency: 1 })
 
 const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { gotoFlow }) => {
     gotoFlow(flowBotWelcome)
@@ -67,6 +67,12 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
     async (ctx, { fallBack, flowDynamic, endFlow, gotoFlow, provider, state }) => {
         // Simulate typing
         await simulateTyping(ctx, provider)
+
+        if (state.getMyState()?.finishedAnswer === false) {
+            flowDynamic(languageBot.oneMessageAtTime)
+            await fallBack()
+            return
+        }
 
         let isAudioConversation = false
         let isPdfConversation = false
@@ -278,12 +284,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
             // Stop typing
             await simulateEndPause(ctx, provider)
-            return
-        }
-
-        if (state.getMyState()?.finishedAnswer === false) {
-            flowDynamic(languageBot.oneMessageAtTime)
-            await fallBack()
             return
         }
 
