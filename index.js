@@ -77,7 +77,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
         let isAudioConversation = false
         let isPdfConversation = false
         let checkIsoLanguage = null
-        const messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍⏳💭' }, { quoted: ctx })
+        let messageBot = null
         let messageBotTmp = ''
 
         if (isAudio(ctx)) {
@@ -106,7 +106,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         if (isImage(ctx)) {
             if (process.env.BOT_RECONGNIZE_IMAGE === 'true') {
-                await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍🖼️⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍🖼️⏳💭' }, { quoted: ctx })
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -123,7 +123,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
         if (isPdf(ctx)) {
             if (process.env.BOT_RECONGNIZE_PDF === 'true') {
                 isPdfConversation = true
-                await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -145,7 +145,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         if (isPdfWithCaption(ctx)) {
             if (process.env.BOT_RECONGNIZE_PDF === 'true') {
-                await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -162,6 +162,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                 return
             }
         }
+
+        if (messageBot === null) {
+            messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍⏳💭' }, { quoted: ctx })
+         }
 
         // Restart conversation fr, es, en, zh, it, pr
         if (
