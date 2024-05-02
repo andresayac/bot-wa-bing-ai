@@ -30,6 +30,7 @@ Esta sección describe las variables de entorno necesarias para configurar el se
 - **BOT_RECONGNIZE_IMAGE**: Indica si el bot debería reconocer imágenes.
 - **BOT_RECONGNIZE_PDF**: Indica si el bot debería reconocer archivos PDF.
 - **BOT_TEXT_TO_SPEECH**: Indica si el bot debería convertir texto en habla.
+- **BOT_MESSAGE_ON_PROCESS**: Mensaje de edición en tiempo real para mostrar a las usuarias.
 
 **Nota**: Asegúrate de configurar estas variables de entorno correctamente antes de ejecutar el bot para un funcionamiento adecuado.
 

@@ -31,6 +31,7 @@ This section describes the necessary environment variables to configure the Bing
 - **BOT_RECONGNIZE_IMAGE**: Indicates whether the bot should recognize images.
 - **BOT_RECONGNIZE_PDF**: Indicates whether the bot should recognize PDF files.
 - **BOT_TEXT_TO_SPEECH**: Indicates whether the bot should convert text to speech.
+- **BOT_MESSAGE_ON_PROCESS**: Edit message in real time to show to users.
 
 **Note**: Make sure to configure these environment variables correctly before running the bot for proper functionality.
 
