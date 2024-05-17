@@ -14,12 +14,13 @@ Este chatbot utiliza la versión gratuita de Bing usando .
 Esta sección describe las variables de entorno necesarias para configurar el servicio de Bing AI.
 
 #### Variables de entorno
-- **BING_AI_HOST**: La URL del servidor de Bing AI.
+- **BING_AI_HOST**: La URL del servidor de Bing AI por defecto dejar vacio a menos que sea necesario.
 - **BING_AI_COOKIES**: Cookies necesarias para la autenticación en el servidor de Bing AI.
 - **BING_AI_SYSTEM_MESSAGE**: Mensaje del sistema utilizado por el asistente de Bing AI. Define el comportamiento del asistente en conversaciones.
 - **BING_AI_GENERATE_IMAGE**: Indica si se deben generar imágenes como parte de las respuestas del asistente de Bing AI.
 - **BING_AI_DEBUG**: Indica si se debe habilitar el modo de depuración para el asistente de Bing AI.
 - **BING_AI_MODE**: Modo de Bing AI es predeterminado 'precise' GPT-4. Puede ser 'turbo', 'precise' o 'balanced'. 'Turbo' es el modo creativo.
+- **BING_AI_PERSONA**: La personalización del modo Bing AI (cooking, copilot, designer, fitness, mica, shopping,shopping copilot, sydney, travel) de forma predeterminada está vacía y no tiene personalización. Recomiendo (sydney o copiloto).
 
 # Extraer cookies de Bing
 ![cookies](https://raw.githubusercontent.com/andresayac/bot-wa-bing-ai/main/cookies-bing.gif)
@@ -30,7 +31,7 @@ Esta sección describe las variables de entorno necesarias para configurar el se
 - **BOT_RECONGNIZE_IMAGE**: Indica si el bot debería reconocer imágenes.
 - **BOT_RECONGNIZE_PDF**: Indica si el bot debería reconocer archivos PDF.
 - **BOT_TEXT_TO_SPEECH**: Indica si el bot debería convertir texto en habla.
-- **BOT_MESSAGE_ON_PROCESS**: Mensaje de edición en tiempo real para mostrar a las usuarias.
+- **BOT_MESSAGE_ON_PROCESS**: Mensaje de edición en tiempo real para mostrar a las usuarios.
 
 **Nota**: Asegúrate de configurar estas variables de entorno correctamente antes de ejecutar el bot para un funcionamiento adecuado.
 

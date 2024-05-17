@@ -15,12 +15,13 @@ This chatbot utilizes the free version of bing using .
 This section describes the necessary environment variables to configure the Bing AI service.
 
 #### Environment Variables
-- **BING_AI_HOST**: The URL of the Bing AI server.
+- **BING_AI_HOST**: The URL of the Bing AI server by default empty no required.
 - **BING_AI_COOKIES**: Cookies required for authentication on the Bing AI server.
 - **BING_AI_SYSTEM_MESSAGE**: System message used by the Bing AI assistant. It defines the behavior of the assistant in conversations.
 - **BING_AI_GENERATE_IMAGE**: Indicates whether to generate images as part of Bing AI assistant responses.
 - **BING_AI_DEBUG**: Indicates whether to enable debug mode for the Bing AI assistant.
 - **BING_AI_MODE**: Bing AI mode is default to 'precise' GPT-4. It can be 'turbo', 'precise', or 'balanced'. 'Turbo' is the creative mode.
+- **BING_AI_PERSONA**: Bing AI mode personalization (cooking, copilot, designer, fitness, mica, shopping,shopping copilot, sydney, travel) by default is empty not have personalization. I recommend (sydney o copilot).
 
 # Extract cookies from Bing
 ![cookies](https://raw.githubusercontent.com/andresayac/bot-wa-bing-ai/main/cookies-bing.gif)
