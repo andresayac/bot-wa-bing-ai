@@ -42,6 +42,7 @@ Reference: [node-chatgpt-api](https://github.com/Richard-Weiss/node-chatgpt-api)
 
 ## Running the Bot
 Once you have completed the `.env` file, you can start the bot by running `npm start`.
+- To use the bot on WhatsApp it is necessary to scan the QR code from your WhatsApp as if you were going to link it on WhatsApp web, said QR code is in the file bot.qr.png
 
 ## Contribution
 If you want to contribute to this project, feel free to do so. Any type of improvement, bug fix or new features are welcome.

@@ -40,6 +40,7 @@ Referencia: [node-chatgpt-api](https://github.com/Richard-Weiss/node-chatgpt-api
 
 ## Ejecutar el Bot
 Una vez que hayas completado el archivo `.env`, puedes iniciar el bot ejecutando `npm start`.
+- Para utilizar el bot en whatsapp es necesario escanear el codigo qr desde tu whatsapp como si fueras a vincularlo en whatsapp web, dicho codigo QR esta en  el archivo bot.qr.png
 
 ## Contribución
 Si deseas contribuir a este proyecto, siéntete libre de hacerlo. Cualquier tipo de mejora, corrección de errores o nuevas características son bienvenidas.
