@@ -1,4 +1,6 @@
 import WebSocket from 'ws'
+import https from 'https';
+import { Readable } from 'stream';
 
 const processImage = async (imageBuffer) => {
     const base64Image = imageBuffer.toString('base64')
@@ -73,7 +75,6 @@ const processAudio = async (audioBuffer, name) => {
         const wsAudioReceive = new Promise((resolve) => {
             ws.on('message', (data) => {
                 const messageText = data.toString()
-                console.log(messageText)
                 if (messageText.includes('process_completed')) {
                     resolve(messageText)
                 }
@@ -81,7 +82,6 @@ const processAudio = async (audioBuffer, name) => {
         })
 
         const response = await wsAudioReceive
-        console.log('response', response)
         ws.close()
 
         return JSON.parse(response)
@@ -91,4 +91,176 @@ const processAudio = async (audioBuffer, name) => {
     }
 }
 
-export { processImage, processAudio }
+
+const processAudioToText = async (audioBuffer) => {
+    const sessionHash = Math.random().toString(36).substring(2);
+    await joinQueue(audioBuffer, sessionHash);
+    const response = await getQueueStatus(sessionHash);
+    return response;
+}
+
+const uploadAudio = async (fileBuffer, sessionHash) => {
+
+    const url = new URL(`https://hf-audio-whisper-large-v3.hf.space/upload?upload_id=${sessionHash}`);
+    const boundary = '----WebKitFormBoundaryUUeAA10e53UKwSzc';
+
+    const fileStream = new Readable();
+    fileStream.push(fileBuffer);
+    fileStream.push(null);
+
+    const filename = `${Date.now()}-${Math.floor(Math.random() * 1000)}.ogg`;
+
+    const size = fileBuffer.length;
+
+    const audioInformation = {
+        filename: filename,
+        contentType: 'audio/ogg',
+        size: size
+    };
+
+    const formDataStart = `--${boundary}\r\nContent-Disposition: form-data; name="files"; filename="${filename}"\r\nContent-Type: audio/ogg\r\n\r\n`;
+    const formDataEnd = `\r\n--${boundary}--\r\n`;
+
+    const options = {
+        method: 'POST',
+        hostname: url.hostname,
+        path: url.pathname + url.search,
+        headers: {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9,es;q=0.8",
+            "content-type": `multipart/form-data; boundary=${boundary}`,
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "Referer": "https://hf-audio-whisper-large-v3.hf.space/?",
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Content-Length": Buffer.byteLength(formDataStart) + size + Buffer.byteLength(formDataEnd)
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let data = '';
+
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            res.on('end', () => {
+                resolve({
+                    data: data,
+                    audioInformation: audioInformation
+                });
+            });
+        });
+
+        req.on('error', (error) => {
+            reject(error);
+        });
+
+        req.write(formDataStart);
+        fileStream.pipe(req, { end: false });
+
+        fileStream.on('end', () => {
+            req.end(formDataEnd);
+        });
+    });
+}
+
+
+const joinQueue = async (fileBuffer, sessionHash) => {
+    const url = 'https://hf-audio-whisper-large-v3.hf.space/queue/join?';
+    const headers = {
+        "accept": "*/*",
+        "accept-language": "en-US,en;q=0.9,es;q=0.8",
+        "content-type": "application/json",
+        "priority": "u=1, i",
+        "sec-ch-ua": "\"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "Referer": "https://hf-audio-whisper-large-v3.hf.space/?",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+    };
+
+    let responseData = await uploadAudio(fileBuffer, sessionHash);
+
+    const reponsePathAudio = responseData.data.replace('["', '').replace('"]', '');
+    const audioInformation = responseData.audioInformation;
+
+    if (!responseData.data.includes('/tmp/gradio/')) {
+        throw new Error('Error to send audio');
+    }
+
+    const body = {
+        "data": [{
+            "path": reponsePathAudio,
+            "url": `https://hf-audio-whisper-large-v3.hf.space/file=${reponsePathAudio}`,
+            "orig_name": audioInformation.filename,
+            "size": audioInformation.size,
+            "mime_type": audioInformation.contentType,
+            "meta": {
+                "_type": "gradio.FileData"
+            }
+        }, "transcribe"],
+        "event_data": null,
+        "fn_index": 3,
+        "trigger_id": 29,
+        "session_hash": sessionHash
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body)
+    });
+
+    return response.json();
+}
+
+const getQueueStatus = async (sessionHash) => {
+    const url = `https://hf-audio-whisper-large-v3.hf.space/queue/data?session_hash=${sessionHash}`;
+    const headers = {
+        "accept": "text/event-stream",
+        "accept-language": "en-US,en;q=0.9,es;q=0.8",
+        "cache-control": "no-cache",
+        "priority": "u=1, i",
+        "sec-ch-ua": "\"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "Referer": "https://hf-audio-whisper-large-v3.hf.space/?",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+    };
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: headers
+    });
+
+    const textResponse = await response.text();
+
+    const lines = textResponse.split('\n');
+    const processData = lines.map(line => {
+        try {
+            return JSON.parse(line.replace('data: ', ''));
+        } catch (error) {
+            return null;
+        }
+    }).filter(data => data);
+
+    const processCompletedData = processData.find(data => data.msg === 'process_completed') ?? {};
+
+    return processCompletedData;
+}
+
+
+export { processImage, processAudio, processAudioToText }

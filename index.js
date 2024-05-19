@@ -5,7 +5,7 @@ import JsonFileAdapter from '@bot-whatsapp/database/json'
 import dotenv from 'dotenv-safe'
 import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
-import { processAudio } from './services/Huggingface.js'
+import { processAudioToText } from './services/Huggingface.js'
 import {
     isAudio,
     isImage,
@@ -86,7 +86,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                 // Process audio
                 await flowDynamic(languageBot.listeningToAudio)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
-                const response = await processAudio(buffer, ctx.key.id + '.ogg')
+                const response = await processAudioToText(buffer, ctx.key.id + '.ogg')
                 if (response.success) {
                     ctx.body = response.output.data[0] + ' ' + languageBot.instructionsGetIsoLanguaje
                 } else {
@@ -165,7 +165,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         if (messageBot === null) {
             messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍⏳💭' }, { quoted: ctx })
-         }
+        }
 
         // Restart conversation fr, es, en, zh, it, pr
         if (
