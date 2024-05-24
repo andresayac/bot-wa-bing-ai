@@ -1,7 +1,8 @@
 /* eslint-disable complexity */
-import pkg from '@bot-whatsapp/bot'
-import BaileysProvider from '@bot-whatsapp/provider/baileys'
-import JsonFileAdapter from '@bot-whatsapp/database/json'
+import { createBot, createProvider, createFlow, addKeyword, utils, EVENTS } from '@builderbot/bot'
+import { MemoryDB as Database } from '@builderbot/bot'
+import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
+
 import dotenv from 'dotenv-safe'
 import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
@@ -40,12 +41,11 @@ const bingAIMode = process.env.BING_AI_MODE ?? 'precise'
 
 const languageBot = languages[process.env.BOT_LANGUAGE ?? 'es']
 
-const { createBot, createProvider, createFlow, addKeyword, EVENTS } = pkg
-
 const systemMessage = process.env.BING_AI_SYSTEM_MESSAGE ?? '🤖'
 
 const maxTimeQueue = 600000
 const queue = new PQueue({ concurrency: 3 })
+const PORT = process.env.PORT ?? 3008
 
 const flowBotImage = addKeyword(EVENTS.MEDIA).addAction(async (ctx, { gotoFlow }) => {
     gotoFlow(flowBotWelcome)
@@ -399,20 +399,17 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 )
 
 const main = async () => {
-    const adapterDB = new JsonFileAdapter()
     const adapterFlow = createFlow([flowBotWelcome, flowBotImage, flowBotDoc, flowBotAudio, flowBotLocation])
-    const adapterProvider = createProvider(BaileysProvider)
+    const adapterProvider = createProvider(Provider)
+    const adapterDB = new Database()
 
-    createBot(
-        {
-            flow: adapterFlow,
-            provider: adapterProvider,
-            database: adapterDB,
-        },
-        {
-            globalState: {},
-        },
-    )
+    const { httpServer } = await createBot({
+        flow: adapterFlow,
+        provider: adapterProvider,
+        database: adapterDB,
+    })
+
+    httpServer(+PORT)
 }
 
 main()

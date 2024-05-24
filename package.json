@@ -11,10 +11,8 @@
     "keywords": [],
     "dependencies": {
         "@adiwajshing/keyed-db": "^0.2.4",
-        "@bot-whatsapp/bot": "^0.1.38",
-        "@bot-whatsapp/cli": "^0.1.38",
-        "@bot-whatsapp/database": "^0.1.38",
-        "@bot-whatsapp/provider": "^0.1.38",
+        "@builderbot/bot": "1.1.6",
+        "@builderbot/provider-baileys": "1.1.6",
         "@timefox/bic-sydney": "^1.1.4",
         "@waylaidwanderer/chatgpt-api": "github:Richard-Weiss/node-chatgpt-api",
         "@whiskeysockets/baileys": "^6.7.2",
@@ -27,6 +25,7 @@
         "ora": "^8.0.1",
         "p-queue": "^8.0.1",
         "pdf-parse": "^1.1.1",
+        "sharp": "^0.32.6",
         "uuid": "^9.0.1",
         "wa-sticker-formatter": "^4.4.4",
         "ws": "^8.17.0"
