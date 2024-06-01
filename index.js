@@ -248,10 +248,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     })
                     if (['es', 'en'].includes(checkIsoLanguage)) {
                         const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
                     } else {
                         const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
                     }
                 }
 
@@ -355,10 +355,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
                     if (['es', 'en'].includes(checkIsoLanguage)) {
                         const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
                     } else {
                         const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
                     }
 
                 }
