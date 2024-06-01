@@ -91,7 +91,6 @@ const processAudio = async (audioBuffer, name) => {
     }
 }
 
-
 const processAudioToText = async (audioBuffer) => {
     const sessionHash = Math.random().toString(36).substring(2);
     await joinQueue(audioBuffer, sessionHash);
@@ -263,4 +262,34 @@ const getQueueStatus = async (sessionHash) => {
 }
 
 
-export { processImage, processAudio, processAudioToText }
+const textToAudio = async (text, language = 'en') => {
+
+    const languages = {
+        es: 'Español México | Claude',
+        en: 'English | Sarah'
+    }
+
+    const formdata = new FormData();
+    formdata.append("model", languages[language]);
+    formdata.append("text", text);
+
+    const requestOptions = {
+        method: "POST",
+        body: formdata,
+        redirect: "follow"
+    };
+
+    const response = await fetch("https://saucapucha-piper-tts-spanish.hf.space/convert", requestOptions)
+    const audioResponse = await response.json();
+
+    if (!audioResponse.audio_base64) {
+        throw new Error('Error to get audio');
+    }
+
+    const audioBuffer = Buffer.from(audioResponse.audio_base64, 'base64');
+    return audioBuffer;
+
+
+}
+
+export { processImage, processAudio, processAudioToText, textToAudio }

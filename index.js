@@ -6,7 +6,7 @@ import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
 import dotenv from 'dotenv-safe'
 import { oraPromise } from 'ora'
 import PQueue from 'p-queue'
-import { processAudioToText } from './services/Huggingface.js'
+import { processAudioToText, textToAudio } from './services/Huggingface.js'
 import {
     isAudio,
     isImage,
@@ -246,8 +246,13 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     state.update({
                         finishedAnswer: true,
                     })
-                    const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                    await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                    if (['es', 'en'].includes(checkIsoLanguage)) {
+                        const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                    } else {
+                        const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                    }
                 }
 
                 const isImageResponse = await bingAI.detectImageInResponse(response)
@@ -280,7 +285,6 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     finishedAnswer: true,
                 })
             } catch (error) {
-                console.log(error)
                 state.update({ finishedAnswer: true })
                 await flowDynamic('Error')
                 await endFlow()
@@ -348,8 +352,15 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     state.update({
                         finishedAnswer: true,
                     })
-                    const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                    await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+
+                    if (['es', 'en'].includes(checkIsoLanguage)) {
+                        const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                    } else {
+                        const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
+                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer }, { quoted: ctx })
+                    }
+
                 }
 
                 const isImageResponse = await bingAI.detectImageInResponse(response)
