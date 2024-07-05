@@ -411,7 +411,9 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
 const main = async () => {
     const adapterFlow = createFlow([flowBotWelcome, flowBotImage, flowBotDoc, flowBotAudio, flowBotLocation])
-    const adapterProvider = createProvider(Provider)
+    const adapterProvider = createProvider(Provider, {
+        useBaileysStore: false
+    })
     const adapterDB = new Database()
 
     const { httpServer } = await createBot({
