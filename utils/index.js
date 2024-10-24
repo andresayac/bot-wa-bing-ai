@@ -105,6 +105,10 @@ const removeEmojis = (text) => {
     return text.replace(/[\uD800-\uDFFF]./g, '')
 }
 
+const filterText = (text) => {
+    return text.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ¿?¡!. ]/g, '');
+}
+
 const removeSymbols = (text, symbols = ['*']) => {
     symbols.forEach((symbol) => {
         text = text.replace(new RegExp(`\\${symbol}`, 'g'), '')
@@ -128,4 +132,5 @@ export {
     divideTextInTokens,
     removeEmojis,
     removeSymbols,
+    filterText
 }

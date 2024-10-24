@@ -18,7 +18,7 @@ import {
     parseLinksWithText,
     timeout,
     divideTextInTokens,
-    removeEmojis,
+    filterText
 } from './utils/index.js'
 import { downloadMediaMessage } from '@whiskeysockets/baileys'
 import BingAI from './services/BingAI.js'
@@ -42,6 +42,8 @@ const bingAIMode = process.env.BING_AI_MODE ?? 'precise'
 const languageBot = languages[process.env.BOT_LANGUAGE ?? 'es']
 
 const systemMessage = process.env.BING_AI_SYSTEM_MESSAGE ?? '🤖'
+
+const allMessagesWithAudio = process.env.BOT_ALL_MSG_WITH_AUDIO === 'true'
 
 const maxTimeQueue = 600000
 const queue = new PQueue({ concurrency: 3 })
@@ -74,9 +76,8 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
             return
         }
 
-        let isAudioConversation = false
+        let isAudioConversation = allMessagesWithAudio
         let isPdfConversation = false
-        let checkIsoLanguage = null
         let messageBot = null
         let messageBotTmp = ''
 
@@ -88,7 +89,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
                 const response = await processAudioToText(buffer, ctx.key.id + '.ogg')
                 if (response.success) {
-                    ctx.body = response.output.data[0] + ' ' + languageBot.instructionsGetIsoLanguaje
+                    ctx.body = response.output.data[0]
                 } else {
                     await flowDynamic(languageBot.errorProcessingAudio)
                     await gotoFlow(flowBotWelcome)
@@ -106,7 +107,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         if (isImage(ctx)) {
             if (process.env.BOT_RECONGNIZE_IMAGE === 'true') {
-                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍🖼️⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(
+                    ctx?.key?.remoteJid,
+                    { text: '🔍🖼️⏳💭' },
+                    { quoted: ctx },
+                )
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -123,7 +128,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
         if (isPdf(ctx)) {
             if (process.env.BOT_RECONGNIZE_PDF === 'true') {
                 isPdfConversation = true
-                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(
+                    ctx?.key?.remoteJid,
+                    { text: '🔍📄⏳💭' },
+                    { quoted: ctx },
+                )
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -145,7 +154,11 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 
         if (isPdfWithCaption(ctx)) {
             if (process.env.BOT_RECONGNIZE_PDF === 'true') {
-                messageBot = await provider.vendor.sendMessage(ctx?.key?.remoteJid, { text: '🔍📄⏳💭' }, { quoted: ctx })
+                messageBot = await provider.vendor.sendMessage(
+                    ctx?.key?.remoteJid,
+                    { text: '🔍📄⏳💭' },
+                    { quoted: ctx },
+                )
                 await simulateEndPause(ctx, provider)
                 await simulateTyping(ctx, provider)
                 const buffer = await downloadMediaMessage(ctx, 'buffer')
@@ -229,30 +242,22 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     }
                 })
 
-                if (isAudioConversation) {
-                    checkIsoLanguage = response.response.match(/\{[a-z]{2}\}/g) ?? 'es'
-                    checkIsoLanguage = checkIsoLanguage[0] ?? 'es'
-                    // Remove iso language in response
-                    response.response = response.response.replace(checkIsoLanguage, '')
-                }
-
                 await provider.vendor.sendMessage(ctx?.key?.remoteJid, {
                     edit: messageBot.key,
                     text: parseLinksWithText(response?.response) ?? 'Error',
                 })
 
                 if (isAudioConversation && process.env.BOT_TEXT_TO_SPEECH === 'true') {
-                    checkIsoLanguage = checkIsoLanguage.replace('{', '').replace('}', '')
                     state.update({
                         finishedAnswer: true,
                     })
-                    if (['es', 'en'].includes(checkIsoLanguage)) {
-                        const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
-                    } else {
-                        const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
-                    }
+
+                    const audioBuffer = await textToSpeech(filterText(response.response))
+                    await provider.vendor.sendMessage(
+                        ctx?.key?.remoteJid,
+                        { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' },
+                        { quoted: ctx },
+                    )
                 }
 
                 const isImageResponse = await bingAI.detectImageInResponse(response)
@@ -341,26 +346,16 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                 })
 
                 if (isAudioConversation) {
-                    checkIsoLanguage = response.response.match(/\{[a-z]{2}\}/g) ?? 'es'
-                    checkIsoLanguage = checkIsoLanguage[0] ?? 'es'
-                    // Remove iso language in response
-                    response.response = response.response.replace(checkIsoLanguage, '')
-                }
-
-                if (isAudioConversation) {
-                    checkIsoLanguage = checkIsoLanguage.replace('{', '').replace('}', '')
                     state.update({
                         finishedAnswer: true,
                     })
 
-                    if (['es', 'en'].includes(checkIsoLanguage)) {
-                        const audioBuffer = await textToAudio(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
-                    } else {
-                        const audioBuffer = await textToSpeech(removeEmojis(response.response), checkIsoLanguage)
-                        await provider.vendor.sendMessage(ctx?.key?.remoteJid, { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' }, { quoted: ctx })
-                    }
-
+                    const audioBuffer = await textToSpeech(filterText(response.response))
+                    await provider.vendor.sendMessage(
+                        ctx?.key?.remoteJid,
+                        { audio: audioBuffer, ptt: true, mimetype: 'audio/mpeg' },
+                        { quoted: ctx },
+                    )
                 }
 
                 const isImageResponse = await bingAI.detectImageInResponse(response)
@@ -391,6 +386,10 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
                     text: parseLinksWithText(response?.response) ?? 'Error',
                 })
 
+
+
+
+
                 state.update({
                     name: ctx.pushName ?? ctx.from,
                     conversationBot: response,
@@ -412,7 +411,7 @@ const flowBotWelcome = addKeyword(EVENTS.WELCOME).addAction(
 const main = async () => {
     const adapterFlow = createFlow([flowBotWelcome, flowBotImage, flowBotDoc, flowBotAudio, flowBotLocation])
     const adapterProvider = createProvider(Provider, {
-        useBaileysStore: false
+        useBaileysStore: false,
     })
     const adapterDB = new Database()
 
