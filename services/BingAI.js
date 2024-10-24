@@ -1,5 +1,5 @@
 import { BingAIClient } from '@waylaidwanderer/chatgpt-api'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio';
 
 export default class BingAI {
     constructor(options) {
